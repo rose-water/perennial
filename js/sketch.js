@@ -131,6 +131,7 @@ function setupScene() {
 }
 
 // -----------------------------------------------------
+// Star code from https://codepen.io/tr13ze/pen/pbjWwg
 function setupStars() {
   particlesObj = new THREE.Object3D();
 
