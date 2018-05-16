@@ -1,5 +1,6 @@
 var container, stats, controls;
-var camera, scene, renderer, groundMesh, grid;
+var camera, scene, renderer;
+var particlesObj;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
 var clock = new THREE.Clock();
 var mixers = [];
@@ -26,8 +27,9 @@ function init() {
   setupControls();
   setupLights();
   setupRenderer();
+  setupStars();
   setupScene();
-  setupStats();
+  // setupStats();
 
   window.addEventListener( 'resize', onWindowResize, false );
 }
@@ -69,31 +71,36 @@ function setupLights() {
 // -----------------------------------------------------
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({
-    antialias: true
+    antialias: true,
+    alpha: true
   });
 
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = true;
-  renderer.sortObjects = false;
+  renderer.sortObjects       = false;
+  renderer.autoClear         = false;
+  renderer.setClearColor(0x000000, 0.0);
 
-  container.appendChild( renderer.domElement );
+  container.appendChild(renderer.domElement);
 }
 
 // -----------------------------------------------------
 function setupScene() {
   scene = new THREE.Scene();
   camera.lookAt( scene.position );
-  // scene.background = new THREE.Color(0xa0a0a0);
-  // scene.fog = new THREE.Fog(0x111111, 200, 1000);
+  // scene.fog = new THREE.Fog(0xf0f0f0, 800, -400);
 
-  // add everything to the scene
+  // add lights
   scene.add(hemiLight);
-  // scene.add(hemiLightHelper);
   scene.add(dirLight);
+  // scene.add(hemiLightHelper);
   // scene.add(dirLightHelper);
 
-  // load the model and add it to the scene when loaded
+  // add stars
+  scene.add(particlesObj);
+
+  // load the model and add it to the scene
   let loader = new THREE.FBXLoader();
 
   loader.load('models/tunnel.fbx', function(fbxData) {
@@ -119,16 +126,34 @@ function setupScene() {
     });
 
     // if everything worked out, add it to the scene
-    // console.log('about to add to scene.');
     scene.add(fbxData);
   });
+}
 
+// -----------------------------------------------------
+function setupStars() {
+  particlesObj = new THREE.Object3D();
+
+  let numStars = 5000;
+  let geometry = new THREE.TetrahedronGeometry(1, 0);
+  let material = new THREE.MeshPhongMaterial({
+      color: 0xffffff,
+      shading: THREE.FlatShading
+  });
+
+  for (let i = 0; i < numStars; i++) {
+    let starMesh = new THREE.Mesh(geometry, material);
+    starMesh.position.set(Math.random() - 0.5, Math.random() - 0.5, Math.random() - 0.5).normalize();
+    starMesh.position.multiplyScalar(90 + (Math.random() * 700));
+    starMesh.rotation.set(Math.random() * 2, Math.random() * 2, Math.random() * 2);
+    particlesObj.add(starMesh);
+  }
 }
 
 // -----------------------------------------------------
 function setupStats() {
   stats = new Stats();
-  // container.appendChild(stats.dom);
+  container.appendChild(stats.dom);
 }
 
 // -----------------------------------------------------
@@ -144,8 +169,9 @@ function animateMixers() {
 function animate() {
   requestAnimationFrame(animate);
   animateMixers();
+  renderer.clear();
   renderer.render(scene, camera);
-  stats.update();
+  // stats.update();
 }
 
 // -----------------------------------------------------
