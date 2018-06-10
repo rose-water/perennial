@@ -2,6 +2,7 @@ var container, stats, controls;
 var camera, scene, renderer;
 var particlesObj;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
+var projector, mouseVector, raycaster, intersects;
 
 var clock       = new THREE.Clock();
 var fbxIsLoaded = false;
@@ -27,6 +28,9 @@ function init() {
   container = document.createElement('div');
   document.body.appendChild(container);
 
+  projector   = new THREE.Projector();
+  mouseVector = new THREE.Vector3();
+
   setupCamera();
   setupLights();
   setupRenderer();
@@ -34,7 +38,7 @@ function init() {
   setupScene();
 
   // setupControls();
-  // setupStats();
+  setupStats();
 
   window.addEventListener( 'resize', onWindowResize, false );
 }
@@ -133,6 +137,8 @@ function setupScene() {
     scene.add(fbxModel_1);
     scene.add(fbxModel_2);
     scene.add(fbxModel_3);
+
+    window.addEventListener( 'mousemove', onMouseMove, false );
   });
 }
 
@@ -157,6 +163,29 @@ function setupStars() {
 }
 
 // -----------------------------------------------------
+function onMouseMove(e) {
+  e.preventDefault();
+  // map mouse coordinates to range (-1, 1) on x & y axes
+  mouseVector.x = 2 * (e.clientX / window.innerWidth) - 1;
+  mouseVector.y = 1 - 2 * ( e.clientY / window.innerHeight );
+
+  // setup raycaster
+  raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera( mouseVector, camera );
+  intersects = raycaster.intersectObjects( fbxModel_1.children );
+
+  // look at what we intersected
+  if (intersects.length > 0) {
+    for (let i = 0; i < intersects.length; i++) {
+      let intersected = intersects[i].object;
+      if (intersected.name.includes('Gem') || intersected.name.includes('Rocks')) {
+        intersected.material.emissive.set( 0x174a59 );
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------
 function setupStats() {
   stats = new Stats();
   container.appendChild(stats.dom);
@@ -170,6 +199,8 @@ function animate() {
 
   // is this the right way to do this?
   if (fbxIsLoaded) {
+    // depending on what tunnel we are currently in,
+    // we move one of them to make it 'infinite'
     if (fbxModel_1.position.z == -300) {
       fbxModel_2.position.z = 300;
     }
@@ -182,7 +213,7 @@ function animate() {
       fbxModel_3.position.z = 300;
     }
 
-
+    // update positions & rotations
     fbxModel_1.position.z -= 0.5;
     fbxModel_2.position.z -= 0.5;
     fbxModel_3.position.z -= 0.5;
@@ -195,7 +226,7 @@ function animate() {
     particlesObj.rotation.x += 0.0005;
   }
 
-  // stats.update();
+  stats.update();
 }
 
 // -----------------------------------------------------
