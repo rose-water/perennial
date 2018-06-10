@@ -2,12 +2,12 @@ var container, stats, controls;
 var camera, scene, renderer;
 var particlesObj;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
-var clock = new THREE.Clock();
+
+var clock       = new THREE.Clock();
 var fbxIsLoaded = false;
-var fbxModel_1 = null;
-var fbxModel_2 = null;
-var fbxModel_3 = null;
-var currentTunnelIs1 = true;
+var fbxModel_1  = null;
+var fbxModel_2  = null;
+var fbxModel_3  = null;
 
 checkWebGL();
 init();
@@ -28,11 +28,12 @@ function init() {
   document.body.appendChild(container);
 
   setupCamera();
-  // setupControls();
   setupLights();
   setupRenderer();
   setupStars();
   setupScene();
+
+  // setupControls();
   // setupStats();
 
   window.addEventListener( 'resize', onWindowResize, false );
@@ -40,7 +41,7 @@ function init() {
 
 // -----------------------------------------------------
 function setupCamera() {
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 100, 800);
+  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 100, 800);
   camera.position.z = -800;
 }
 
@@ -55,9 +56,8 @@ function setupControls() {
 function setupLights() {
   hemiLight = new THREE.HemisphereLight(0xffffff, 0x444444);
   hemiLight.color.setHSL( 0.6, 1, 0.6 );
-	hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+	hemiLight.groundColor.setHSL( 0.1, 1, 0.75 );
 	hemiLight.position.set( 0, 50, 0 );
-  // hemiLight.position.set(0, 200, 0);
 
   // dirLight                      = new THREE.DirectionalLight(0xffffff);
   // dirLight.castShadow           = false;
@@ -76,7 +76,7 @@ function setupLights() {
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({
     // antialias: true,
-    // alpha: true
+    alpha: true
   });
 
   renderer.setPixelRatio(window.devicePixelRatio * 0.75);
@@ -84,7 +84,7 @@ function setupRenderer() {
   renderer.shadowMap.enabled = false;
   renderer.sortObjects       = false;
   renderer.autoClear         = false;
-  // renderer.setClearColor(0x000000, 0.0);
+  renderer.setClearColor(0x000000, 0.0);
 
   container.appendChild(renderer.domElement);
 }
@@ -93,11 +93,12 @@ function setupRenderer() {
 function setupScene() {
   scene = new THREE.Scene();
   camera.lookAt( scene.position );
-  // scene.fog = new THREE.Fog(0xf0f0f0, 800, -400);
 
   // add lights
   scene.add(hemiLight);
   // scene.add(dirLight);
+
+  // add light helpers
   // scene.add(hemiLightHelper);
   // scene.add(dirLightHelper);
 
@@ -118,21 +119,17 @@ function setupScene() {
       });
     });
 
-    // if everything worked out, add it to the scene
+    // if everything worked out, add to the scene
     fbxModel_1 = fbxData;
     fbxModel_2 = fbxModel_1.clone();
     fbxModel_3 = fbxModel_1.clone();
 
-    // fbxModel_1.scale.set(0.5, 0.5, 0.5);
-    // fbxModel_2.scale.set(0.5, 0.5, 0.5);
-
-    // fbxModel_2.rotation.y = Math.PI;
+    fbxModel_2.rotation.y = Math.PI;
     fbxModel_2.position.z = 600;
     fbxModel_2.rotation.z += Math.PI;
 
     fbxModel_3.position.z = 1200;
 
-    console.log('fbxModel: ', fbxModel_1);
     scene.add(fbxModel_1);
     scene.add(fbxModel_2);
     scene.add(fbxModel_3);
@@ -171,28 +168,7 @@ function animate() {
   renderer.clear();
   renderer.render(scene, camera);
 
-  // TEST (move the camera)
-  // if (fbxIsLoaded) {
-  //   // When we start, we're in tunnel 1
-  //   // When we get close to the end of the tunnel
-  //
-  //   if (camera.position.z % 600 == 0) {
-  //     console.log('end of tunnel');
-  //     if (currentTunnelIs1) {
-  //       fbxModel_2.position.z += 600;
-  //       currentTunnelIs1 = false;
-  //     } else {
-  //       fbxModel_1.position.z += 600;
-  //       currentTunnelIs1 = true;
-  //     }
-  //   }
-  //
-  //   camera.position.z += 1;
-  //   fbxModel_1.rotation.z += 0.001;
-  //   fbxModel_2.rotation.z += 0.001;
-  // }
-
-  // TEST (move the models)
+  // is this the right way to do this?
   if (fbxIsLoaded) {
     if (fbxModel_1.position.z == -300) {
       fbxModel_2.position.z = 300;
