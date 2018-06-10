@@ -3,7 +3,11 @@ var camera, scene, renderer;
 var particlesObj;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
 var clock = new THREE.Clock();
-var mixers = [];
+var fbxIsLoaded = false;
+var fbxModel_1 = null;
+var fbxModel_2 = null;
+var fbxModel_3 = null;
+var currentTunnelIs1 = true;
 
 checkWebGL();
 init();
@@ -24,20 +28,20 @@ function init() {
   document.body.appendChild(container);
 
   setupCamera();
-  setupControls();
+  // setupControls();
   setupLights();
   setupRenderer();
   setupStars();
   setupScene();
-  // setupStats();
+  setupStats();
 
   window.addEventListener( 'resize', onWindowResize, false );
 }
 
 // -----------------------------------------------------
 function setupCamera() {
-  camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 4000);
-  camera.position.set(0, 0, -600);
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 100, 800);
+  camera.position.z = -800;
 }
 
 // -----------------------------------------------------
@@ -55,32 +59,32 @@ function setupLights() {
 	hemiLight.position.set( 0, 50, 0 );
   // hemiLight.position.set(0, 200, 0);
 
-  dirLight                      = new THREE.DirectionalLight(0xffffff);
-  dirLight.castShadow           = true;
-  dirLight.shadow.camera.top    = 180;
-  dirLight.shadow.camera.bottom = -100;
-  dirLight.shadow.camera.left   = -120;
-  dirLight.shadow.camera.right  = 120;
-  dirLight.position.set(0, 200, 100);
+  // dirLight                      = new THREE.DirectionalLight(0xffffff);
+  // dirLight.castShadow           = false;
+  // dirLight.shadow.camera.top    = 180;
+  // dirLight.shadow.camera.bottom = -100;
+  // dirLight.shadow.camera.left   = -120;
+  // dirLight.shadow.camera.right  = 120;
+  // dirLight.position.set(0, 200, 100);
 
   // Light helpers
-  hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 5);
-  dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 5);
+  // hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 5);
+  // dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 5);
 }
 
 // -----------------------------------------------------
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({
-    antialias: true,
-    alpha: true
+    // antialias: true,
+    // alpha: true
   });
 
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(window.devicePixelRatio * 0.75);
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.enabled = false;
   renderer.sortObjects       = false;
   renderer.autoClear         = false;
-  renderer.setClearColor(0x000000, 0.0);
+  // renderer.setClearColor(0x000000, 0.0);
 
   container.appendChild(renderer.domElement);
 }
@@ -93,7 +97,7 @@ function setupScene() {
 
   // add lights
   scene.add(hemiLight);
-  scene.add(dirLight);
+  // scene.add(dirLight);
   // scene.add(hemiLightHelper);
   // scene.add(dirLightHelper);
 
@@ -104,18 +108,7 @@ function setupScene() {
   let loader = new THREE.FBXLoader();
 
   loader.load('models/tunnel.fbx', function(fbxData) {
-    console.log('loaded fbx: ', fbxData);
-
-    fbxData.mixer = new THREE.AnimationMixer(fbxData);
-    mixers.push(fbxData.mixer);
-
-    let action;
-    if (fbxData.animations.length > 0) {
-      action = fbxData.mixer.clipAction(fbxData.animations[0]);
-      action.play();
-    } else {
-      console.log('fbx did not load / does not include animations.');
-    }
+    fbxIsLoaded = true;
 
     fbxData.traverse(function(group) {
       group.traverse(function(child) {
@@ -126,7 +119,23 @@ function setupScene() {
     });
 
     // if everything worked out, add it to the scene
-    scene.add(fbxData);
+    fbxModel_1 = fbxData;
+    fbxModel_2 = fbxModel_1.clone();
+    fbxModel_3 = fbxModel_1.clone();
+
+    // fbxModel_1.scale.set(0.5, 0.5, 0.5);
+    // fbxModel_2.scale.set(0.5, 0.5, 0.5);
+
+    fbxModel_2.rotation.y = Math.PI;
+    fbxModel_2.position.z = 600;
+    fbxModel_2.rotation.z += Math.PI;
+
+    fbxModel_3.position.z = 1200;
+
+    console.log('fbxModel: ', fbxModel_1);
+    scene.add(fbxModel_1);
+    scene.add(fbxModel_2);
+    scene.add(fbxModel_3);
   });
 }
 
@@ -138,8 +147,7 @@ function setupStars() {
   let numStars = 5000;
   let geometry = new THREE.TetrahedronGeometry(1, 0);
   let material = new THREE.MeshPhongMaterial({
-      color: 0xffffff,
-      shading: THREE.FlatShading
+      color: 0xffffff
   });
 
   for (let i = 0; i < numStars; i++) {
@@ -158,21 +166,60 @@ function setupStats() {
 }
 
 // -----------------------------------------------------
-function animateMixers() {
-  if (mixers.length > 0) {
-    for (let i = 0; i < mixers.length; i++) {
-      mixers[i].update(clock.getDelta());
-    }
-  }
-}
-
-// -----------------------------------------------------
 function animate() {
   requestAnimationFrame(animate);
-  animateMixers();
   renderer.clear();
   renderer.render(scene, camera);
-  // stats.update();
+
+  // TEST (move the camera)
+  // if (fbxIsLoaded) {
+  //   // When we start, we're in tunnel 1
+  //   // When we get close to the end of the tunnel
+  //
+  //   if (camera.position.z % 600 == 0) {
+  //     console.log('end of tunnel');
+  //     if (currentTunnelIs1) {
+  //       fbxModel_2.position.z += 600;
+  //       currentTunnelIs1 = false;
+  //     } else {
+  //       fbxModel_1.position.z += 600;
+  //       currentTunnelIs1 = true;
+  //     }
+  //   }
+  //
+  //   camera.position.z += 1;
+  //   fbxModel_1.rotation.z += 0.001;
+  //   fbxModel_2.rotation.z += 0.001;
+  // }
+
+  // TEST (move the models)
+  if (fbxIsLoaded) {
+    if (fbxModel_1.position.z == -300) {
+      fbxModel_2.position.z = 300;
+    }
+
+    if (fbxModel_3.position.z == -300) {
+      fbxModel_1.position.z = 300;
+    }
+
+    if (fbxModel_2.position.z == -300) {
+      fbxModel_3.position.z = 300;
+    }
+
+
+    fbxModel_1.position.z -= 1;
+    fbxModel_2.position.z -= 1;
+    fbxModel_3.position.z -= 1;
+
+    fbxModel_1.rotation.z += 0.001;
+    fbxModel_2.rotation.z += 0.001;
+    fbxModel_3.rotation.z += 0.001;
+
+    particlesObj.rotation.y += 0.001;
+    particlesObj.rotation.x += 0.0005;
+  }
+
+  stats.update();
 }
 
 // -----------------------------------------------------
