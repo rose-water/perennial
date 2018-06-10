@@ -33,7 +33,7 @@ function init() {
   setupRenderer();
   setupStars();
   setupScene();
-  setupStats();
+  // setupStats();
 
   window.addEventListener( 'resize', onWindowResize, false );
 }
@@ -126,7 +126,7 @@ function setupScene() {
     // fbxModel_1.scale.set(0.5, 0.5, 0.5);
     // fbxModel_2.scale.set(0.5, 0.5, 0.5);
 
-    fbxModel_2.rotation.y = Math.PI;
+    // fbxModel_2.rotation.y = Math.PI;
     fbxModel_2.position.z = 600;
     fbxModel_2.rotation.z += Math.PI;
 
@@ -207,9 +207,9 @@ function animate() {
     }
 
 
-    fbxModel_1.position.z -= 1;
-    fbxModel_2.position.z -= 1;
-    fbxModel_3.position.z -= 1;
+    fbxModel_1.position.z -= 0.5;
+    fbxModel_2.position.z -= 0.5;
+    fbxModel_3.position.z -= 0.5;
 
     fbxModel_1.rotation.z += 0.001;
     fbxModel_2.rotation.z += 0.001;
@@ -219,7 +219,7 @@ function animate() {
     particlesObj.rotation.x += 0.0005;
   }
 
-  stats.update();
+  // stats.update();
 }
 
 // -----------------------------------------------------
