@@ -2,7 +2,10 @@ var container, stats, controls;
 var camera, scene, renderer;
 var particlesObj;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
-var projector, mouseVector, raycaster, intersects;
+var projector, mouseVector, raycaster;
+var intersects;
+var currentObjIntersected = null;
+var currentObjMaterial = null;
 
 var clock       = new THREE.Clock();
 var fbxIsLoaded = false;
@@ -172,14 +175,40 @@ function onMouseMove(e) {
   // setup raycaster
   raycaster = new THREE.Raycaster();
   raycaster.setFromCamera( mouseVector, camera );
+
+  // TODO: update this to make sure we are checking what tunnel we are in
   intersects = raycaster.intersectObjects( fbxModel_1.children );
 
-  // look at what we intersected
+  // if we are intersecting something
   if (intersects.length > 0) {
-    for (let i = 0; i < intersects.length; i++) {
-      let intersected = intersects[i].object;
-      if (intersected.name.includes('Gem') || intersected.name.includes('Rocks')) {
-        intersected.material.emissive.set( 0x174a59 );
+    let intersectingObj = intersects[0].object;
+
+    if (intersectingObj.name.includes('Rock') || intersectingObj.name.includes('Gem')) {
+      if (currentObjIntersected !== intersectingObj || currentObjIntersected == null) {
+
+        if (currentObjIntersected !== null) {
+          currentObjIntersected.material = currentObjMaterial;
+          currentObjMaterial = null;
+          currentObjIntersected = null;
+        }
+
+        // store a copy of the material to reset to later
+        currentObjMaterial = intersectingObj.material.clone();
+
+        // create another copy of the material so we can modify the emissive
+        let materialCopy = intersectingObj.material.clone();
+        materialCopy.emissive.set( 0x3d8fb1 );
+        materialCopy.emissiveIntensity = 1.2;
+        intersectingObj.material = materialCopy;
+        currentObjIntersected = intersectingObj;
+      }
+
+    } else {
+      // if we're intersecting a non-rock/gem but we were intersecting a gem/rock before
+      if (currentObjIntersected !== null) {
+        currentObjIntersected.material = currentObjMaterial;
+        currentObjMaterial = null;
+        currentObjIntersected = null;
       }
     }
   }
