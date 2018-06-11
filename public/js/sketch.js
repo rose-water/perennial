@@ -34,6 +34,7 @@ function init() {
 
   projector   = new THREE.Projector();
   mouseVector = new THREE.Vector3();
+  raycaster = new THREE.Raycaster();
 
   setupCamera();
   setupLights();
@@ -187,12 +188,9 @@ function onMouseMove(e) {
   mouseVector.x = 2 * (e.clientX / window.innerWidth) - 1;
   mouseVector.y = 1 - 2 * ( e.clientY / window.innerHeight );
 
-  // setup raycaster
-  raycaster = new THREE.Raycaster();
   raycaster.setFromCamera( mouseVector, camera );
-
-  console.log('testing new');
   intersects = raycaster.intersectObjects( pickableObjs );
+  
   // if we are intersecting something
   if (intersects.length > 0) {
     let intersectingObj = intersects[0].object;
