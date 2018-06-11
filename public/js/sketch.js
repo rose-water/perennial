@@ -142,7 +142,21 @@ function setupScene() {
     scene.add(fbxModel_2);
     scene.add(fbxModel_3);
 
+    // set pickableObjs to be only gems and rocks
+    // do this here so it's only set up once
+    let unfilteredPickables = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
+    pickableObjs = setupPickableObjsForGroup(unfilteredPickables);
     window.addEventListener( 'mousemove', onMouseMove, false );
+  });
+}
+
+// -----------------------------------------------------
+function setupPickableObjsForGroup(groupedChildren) {
+  return groupedChildren.filter(function(mesh) {
+    if (mesh.name.includes('Gem') || mesh.name.includes('Rock')) {
+      return mesh;
+    }
+    return;
   });
 }
 
@@ -168,7 +182,6 @@ function setupStars() {
 
 // -----------------------------------------------------
 function onMouseMove(e) {
-  console.log('here');
   e.preventDefault();
   // map mouse coordinates to range (-1, 1) on x & y axes
   mouseVector.x = 2 * (e.clientX / window.innerWidth) - 1;
@@ -178,12 +191,13 @@ function onMouseMove(e) {
   raycaster = new THREE.Raycaster();
   raycaster.setFromCamera( mouseVector, camera );
 
-  pickableObjs = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
+  console.log('testing new');
   intersects = raycaster.intersectObjects( pickableObjs );
   // if we are intersecting something
   if (intersects.length > 0) {
     let intersectingObj = intersects[0].object;
 
+    // TODO: update since we no longer need to check the name
     if (intersectingObj.name.includes('Rock') || intersectingObj.name.includes('Gem')) {
       if (currentObjIntersected !== intersectingObj || currentObjIntersected == null) {
 
