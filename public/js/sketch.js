@@ -5,13 +5,14 @@ var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
 var projector, mouseVector, raycaster;
 var intersects;
 var currentObjIntersected = null;
-var currentObjMaterial = null;
+var currentObjMaterial    = null;
 
-var clock       = new THREE.Clock();
-var fbxIsLoaded = false;
-var fbxModel_1  = null;
-var fbxModel_2  = null;
-var fbxModel_3  = null;
+var clock                 = new THREE.Clock();
+var fbxIsLoaded           = false;
+var fbxModel_1            = null;
+var fbxModel_2            = null;
+var fbxModel_3            = null;
+var pickableObjs          = null;
 
 checkWebGL();
 init();
@@ -167,6 +168,7 @@ function setupStars() {
 
 // -----------------------------------------------------
 function onMouseMove(e) {
+  console.log('here');
   e.preventDefault();
   // map mouse coordinates to range (-1, 1) on x & y axes
   mouseVector.x = 2 * (e.clientX / window.innerWidth) - 1;
@@ -176,9 +178,8 @@ function onMouseMove(e) {
   raycaster = new THREE.Raycaster();
   raycaster.setFromCamera( mouseVector, camera );
 
-  let pickableObjs = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
+  pickableObjs = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
   intersects = raycaster.intersectObjects( pickableObjs );
-
   // if we are intersecting something
   if (intersects.length > 0) {
     let intersectingObj = intersects[0].object;
