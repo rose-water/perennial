@@ -1,3 +1,78 @@
+// =======================================================
+// LeapJS - https://github.com/leapmotion/leapjs-plugins
+// =======================================================
+var cursor = document.getElementById('cursor');
+
+Leap.loop({
+  hand: function(hand) {
+    var screenPosition = hand.screenPosition(hand.palmPosition);
+
+    // console.log('==========================');
+    // console.log('x: ' + (screenPosition[0].toPrecision(4)) + 'px');
+    // console.log('y: ' + (screenPosition[1].toPrecision(4)) + 'px');
+    // console.log('z: ' + (screenPosition[2].toPrecision(4)) + 'px');
+
+    // Update and display cursor
+    cursor.style.visibility = 'hidden';
+    var el = document.elementFromPoint(
+      hand.screenPosition()[0],
+      hand.screenPosition()[1]
+    );
+    cursor.style.visibility = 'visible';
+
+    cursor.style.left = screenPosition[0] + 'px';
+    cursor.style.top = screenPosition[1] + 'px';
+
+    let leapPosVector = new THREE.Vector3();
+    leapPosVector.x = 2 * ( screenPosition[0] / window.innerWidth) - 1;
+    leapPosVector.y = 1 - 2 * ( screenPosition[1] / window.innerHeight );
+
+    // honestly i'm not sure if I should be doing the raycasting
+    // from within the leap looping...
+    raycaster.setFromCamera( leapPosVector, camera );
+    intersects = raycaster.intersectObjects( pickableObjs );
+
+    // if we are intersecting something
+    if (intersects.length > 0) {
+      let intersectingObj = intersects[0].object;
+
+      // TODO: update since we no longer need to check the name
+      if (intersectingObj.name.includes('Rock') || intersectingObj.name.includes('Gem')) {
+        if (currentObjIntersected !== intersectingObj || currentObjIntersected == null) {
+
+          if (currentObjIntersected !== null) {
+            currentObjIntersected.material = currentObjMaterial;
+            currentObjMaterial = null;
+            currentObjIntersected = null;
+          }
+
+          // store a copy of the material to reset to later
+          currentObjMaterial = intersectingObj.material.clone();
+
+          // create another copy of the material so we can modify the emissive
+          let materialCopy = intersectingObj.material.clone();
+          materialCopy.emissive.set( 0x3d8fb1 );
+          materialCopy.emissiveIntensity = 1.2;
+          intersectingObj.material = materialCopy;
+          currentObjIntersected = intersectingObj;
+        }
+
+      } else {
+        // if we're intersecting a non-rock/gem but we were intersecting a gem/rock before
+        if (currentObjIntersected !== null) {
+          currentObjIntersected.material = currentObjMaterial;
+          currentObjMaterial = null;
+          currentObjIntersected = null;
+        }
+      }
+    }
+  }
+
+}).use('screenPosition', { scale: 1 });
+
+// =======================================================
+// THREE.js
+// =======================================================
 var container, stats, controls;
 var camera, scene, renderer;
 var particlesObj;
@@ -41,9 +116,10 @@ function init() {
   setupRenderer();
   setupStars();
   setupScene();
-
-  // setupControls();
   setupStats();
+
+  // DEBUG only: OrbitControls
+  // setupControls();
 
   window.addEventListener( 'resize', onWindowResize, false );
 }
@@ -84,11 +160,12 @@ function setupLights() {
 // -----------------------------------------------------
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({
+    // antialias for web only!
     // antialias: true,
     alpha: true
   });
 
-  renderer.setPixelRatio(window.devicePixelRatio * 0.8);
+  renderer.setPixelRatio(window.devicePixelRatio * 0.75);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = false;
   renderer.sortObjects       = false;
@@ -107,7 +184,7 @@ function setupScene() {
   scene.add(hemiLight);
   // scene.add(dirLight);
 
-  // add light helpers
+  // DEBUG only: light helpers
   // scene.add(hemiLightHelper);
   // scene.add(dirLightHelper);
 
@@ -147,7 +224,9 @@ function setupScene() {
     // do this here so it's only set up once
     let unfilteredPickables = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
     pickableObjs = setupPickableObjsForGroup(unfilteredPickables);
-    window.addEventListener( 'mousemove', onMouseMove, false );
+
+    // DEBUG only: mouse events for raycasting
+    // window.addEventListener( 'mousemove', onMouseMove, false );
   });
 }
 
@@ -182,6 +261,8 @@ function setupStars() {
 }
 
 // -----------------------------------------------------
+// DEBUG only: mouse events for raycasting
+// -----------------------------------------------------
 function onMouseMove(e) {
   e.preventDefault();
   // map mouse coordinates to range (-1, 1) on x & y axes
@@ -190,7 +271,7 @@ function onMouseMove(e) {
 
   raycaster.setFromCamera( mouseVector, camera );
   intersects = raycaster.intersectObjects( pickableObjs );
-  
+
   // if we are intersecting something
   if (intersects.length > 0) {
     let intersectingObj = intersects[0].object;
