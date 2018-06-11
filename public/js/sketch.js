@@ -34,6 +34,11 @@ Leap.loop({
 
     // if we are intersecting something
     if (intersects.length > 0) {
+      // this is the wrong way to do this! 
+      sound_1.play();
+      setTimeout(function() {
+        sound_1.stop();
+      }, 200);
       let intersectingObj = intersects[0].object;
 
       // TODO: update since we no longer need to check the name
@@ -55,6 +60,7 @@ Leap.loop({
           materialCopy.emissiveIntensity = 1.2;
           intersectingObj.material = materialCopy;
           currentObjIntersected = intersectingObj;
+
         }
 
       } else {
@@ -76,6 +82,7 @@ Leap.loop({
 var container, stats, controls;
 var camera, scene, renderer;
 var particlesObj;
+var audio, sound_1, sound_2;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
 var projector, mouseVector, raycaster;
 var intersects;
@@ -112,6 +119,7 @@ function init() {
   raycaster = new THREE.Raycaster();
 
   setupCamera();
+  setupAudio();
   setupLights();
   setupRenderer();
   setupStars();
@@ -128,6 +136,36 @@ function init() {
 function setupCamera() {
   camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 800);
   camera.position.z = -800;
+}
+
+// -----------------------------------------------------
+function setupAudio() {
+  let audioListener = new THREE.AudioListener();
+  camera.add(audioListener);
+
+  let sampleUrls = ['audio/sound_1.wav', 'audio/sound_2.wav'];
+
+  sound_1 = new THREE.Audio(audioListener);
+  audioLoader = new THREE.AudioLoader();
+  audioLoader.load(
+
+    sampleUrls[0],
+
+    // onload callback
+    function(audioBuffer) {
+      sound_1.setBuffer(audioBuffer);
+    },
+
+    // on progress callback
+    function(xhr) {
+      console.log('sound_1 progress:' + (xhr.loaded / xhr.total * 100) + '% loaded' );
+    },
+
+    // on error callback
+    function(err) {
+      console.log('sound_1 error: ', err);
+    }
+  );
 }
 
 // -----------------------------------------------------
@@ -226,7 +264,7 @@ function setupScene() {
     pickableObjs = setupPickableObjsForGroup(unfilteredPickables);
 
     // DEBUG only: mouse events for raycasting
-    // window.addEventListener( 'mousemove', onMouseMove, false );
+    window.addEventListener( 'mousemove', onMouseMove, false );
   });
 }
 
@@ -295,6 +333,12 @@ function onMouseMove(e) {
         materialCopy.emissiveIntensity = 1.2;
         intersectingObj.material = materialCopy;
         currentObjIntersected = intersectingObj;
+
+        // this is the wrong way to do this!
+        sound_1.play();
+        setTimeout(function() {
+          sound_1.stop();
+        }, 200);
       }
 
     } else {
