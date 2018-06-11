@@ -2,6 +2,10 @@ var container, stats, controls;
 var camera, scene, renderer;
 var particlesObj;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
+var projector, mouseVector, raycaster;
+var intersects;
+var currentObjIntersected = null;
+var currentObjMaterial = null;
 
 var clock       = new THREE.Clock();
 var fbxIsLoaded = false;
@@ -27,6 +31,9 @@ function init() {
   container = document.createElement('div');
   document.body.appendChild(container);
 
+  projector   = new THREE.Projector();
+  mouseVector = new THREE.Vector3();
+
   setupCamera();
   setupLights();
   setupRenderer();
@@ -34,14 +41,14 @@ function init() {
   setupScene();
 
   // setupControls();
-  // setupStats();
+  setupStats();
 
   window.addEventListener( 'resize', onWindowResize, false );
 }
 
 // -----------------------------------------------------
 function setupCamera() {
-  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 100, 800);
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 800);
   camera.position.z = -800;
 }
 
@@ -79,7 +86,7 @@ function setupRenderer() {
     alpha: true
   });
 
-  renderer.setPixelRatio(window.devicePixelRatio * 0.75);
+  renderer.setPixelRatio(window.devicePixelRatio * 0.8);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = false;
   renderer.sortObjects       = false;
@@ -133,6 +140,8 @@ function setupScene() {
     scene.add(fbxModel_1);
     scene.add(fbxModel_2);
     scene.add(fbxModel_3);
+
+    window.addEventListener( 'mousemove', onMouseMove, false );
   });
 }
 
@@ -157,6 +166,55 @@ function setupStars() {
 }
 
 // -----------------------------------------------------
+function onMouseMove(e) {
+  e.preventDefault();
+  // map mouse coordinates to range (-1, 1) on x & y axes
+  mouseVector.x = 2 * (e.clientX / window.innerWidth) - 1;
+  mouseVector.y = 1 - 2 * ( e.clientY / window.innerHeight );
+
+  // setup raycaster
+  raycaster = new THREE.Raycaster();
+  raycaster.setFromCamera( mouseVector, camera );
+
+  let pickableObjs = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
+  intersects = raycaster.intersectObjects( pickableObjs );
+
+  // if we are intersecting something
+  if (intersects.length > 0) {
+    let intersectingObj = intersects[0].object;
+
+    if (intersectingObj.name.includes('Rock') || intersectingObj.name.includes('Gem')) {
+      if (currentObjIntersected !== intersectingObj || currentObjIntersected == null) {
+
+        if (currentObjIntersected !== null) {
+          currentObjIntersected.material = currentObjMaterial;
+          currentObjMaterial = null;
+          currentObjIntersected = null;
+        }
+
+        // store a copy of the material to reset to later
+        currentObjMaterial = intersectingObj.material.clone();
+
+        // create another copy of the material so we can modify the emissive
+        let materialCopy = intersectingObj.material.clone();
+        materialCopy.emissive.set( 0x3d8fb1 );
+        materialCopy.emissiveIntensity = 1.2;
+        intersectingObj.material = materialCopy;
+        currentObjIntersected = intersectingObj;
+      }
+
+    } else {
+      // if we're intersecting a non-rock/gem but we were intersecting a gem/rock before
+      if (currentObjIntersected !== null) {
+        currentObjIntersected.material = currentObjMaterial;
+        currentObjMaterial = null;
+        currentObjIntersected = null;
+      }
+    }
+  }
+}
+
+// -----------------------------------------------------
 function setupStats() {
   stats = new Stats();
   container.appendChild(stats.dom);
@@ -170,6 +228,8 @@ function animate() {
 
   // is this the right way to do this?
   if (fbxIsLoaded) {
+    // depending on what tunnel we are currently in,
+    // we move one of them to make it 'infinite'
     if (fbxModel_1.position.z == -300) {
       fbxModel_2.position.z = 300;
     }
@@ -182,10 +242,10 @@ function animate() {
       fbxModel_3.position.z = 300;
     }
 
-
-    fbxModel_1.position.z -= 0.5;
-    fbxModel_2.position.z -= 0.5;
-    fbxModel_3.position.z -= 0.5;
+    // update positions & rotations
+    fbxModel_1.position.z -= 1;
+    fbxModel_2.position.z -= 1;
+    fbxModel_3.position.z -= 1;
 
     fbxModel_1.rotation.z += 0.001;
     fbxModel_2.rotation.z += 0.001;
@@ -195,7 +255,7 @@ function animate() {
     particlesObj.rotation.x += 0.0005;
   }
 
-  // stats.update();
+  stats.update();
 }
 
 // -----------------------------------------------------
