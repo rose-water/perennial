@@ -19,8 +19,8 @@ app.get('/', function(req, res) {
 // -----------------------------------------------------
 // osc server setup
 // -----------------------------------------------------
-var oscServer = new osc.Server(8000, '192.168.1.6');
-
-oscServer.on('message', function(msg, rinfo) {
-  console.log('osc got msg: ', msg);
-});
+// var oscServer = new osc.Server(8000, '192.168.1.6');
+//
+// oscServer.on('message', function(msg, rinfo) {
+//   console.log('osc got msg: ', msg);
+// });
