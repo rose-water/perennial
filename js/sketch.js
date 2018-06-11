@@ -48,7 +48,7 @@ function init() {
 
 // -----------------------------------------------------
 function setupCamera() {
-  camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 100, 800);
+  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 800);
   camera.position.z = -800;
 }
 
@@ -86,7 +86,7 @@ function setupRenderer() {
     alpha: true
   });
 
-  renderer.setPixelRatio(window.devicePixelRatio * 0.75);
+  renderer.setPixelRatio(window.devicePixelRatio * 0.8);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = false;
   renderer.sortObjects       = false;
@@ -176,8 +176,8 @@ function onMouseMove(e) {
   raycaster = new THREE.Raycaster();
   raycaster.setFromCamera( mouseVector, camera );
 
-  // TODO: update this to make sure we are checking what tunnel we are in
-  intersects = raycaster.intersectObjects( fbxModel_1.children );
+  let pickableObjs = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
+  intersects = raycaster.intersectObjects( pickableObjs );
 
   // if we are intersecting something
   if (intersects.length > 0) {
@@ -243,9 +243,9 @@ function animate() {
     }
 
     // update positions & rotations
-    fbxModel_1.position.z -= 0.5;
-    fbxModel_2.position.z -= 0.5;
-    fbxModel_3.position.z -= 0.5;
+    fbxModel_1.position.z -= 1;
+    fbxModel_2.position.z -= 1;
+    fbxModel_3.position.z -= 1;
 
     fbxModel_1.rotation.z += 0.001;
     fbxModel_2.rotation.z += 0.001;
