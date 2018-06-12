@@ -101,7 +101,7 @@ Leap.loop({
 var container, stats, controls;
 var camera, scene, renderer;
 var particlesObj;
-var audio, sound_1, sound_2;
+var audio, sound_1, sound_2, bgm;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
 var projector, mouseVector, raycaster;
 var intersects;
@@ -144,7 +144,7 @@ function init() {
   setupRenderer();
   setupStars();
   setupScene();
-  setupStats();
+  // setupStats();
 
   // DEBUG only: OrbitControls
   // setupControls();
@@ -163,14 +163,41 @@ function setupAudio() {
   let audioListener = new THREE.AudioListener();
   camera.add(audioListener);
 
-  let sampleUrls = ['audio/sound_1.wav', 'audio/sound_2.wav'];
+  let sampleUrls = [
+    'audio/sound_1.wav',
+    'audio/sound_2.wav',
+    'audio/underwater.m4a'
+  ];
 
   sound_1 = new THREE.Audio(audioListener);
-  sound_1.offset = 0.1
-
   sound_2 = new THREE.Audio(audioListener);
+  bgm     = new THREE.Audio(audioListener);
 
   audioLoader = new THREE.AudioLoader();
+
+  // BGM sound
+  audioLoader.load(
+    sampleUrls[2],
+
+    // onload callback
+    function(audioBuffer) {
+      console.log('bgm loaded.');
+      bgm.setBuffer(audioBuffer);
+      bgm.setLoop(true);
+      bgm.setVolume(0.9);
+      bgm.play();
+    },
+
+    // on progress callback
+    function(xhr) {
+      // console.log('bgm progress:' + (xhr.loaded / xhr.total * 100) + '% loaded' );
+    },
+
+    // on error callback
+    function(err) {
+      // console.log('bgm error: ', err);
+    }
+  );
 
   // GEM sound
   audioLoader.load(
@@ -443,7 +470,7 @@ function animate() {
     particlesObj.rotation.x += 0.0005;
   }
 
-  stats.update();
+  // stats.update();
 }
 
 // -----------------------------------------------------
