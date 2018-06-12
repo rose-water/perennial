@@ -1,5 +1,8 @@
 # Mac OS X hidden files
 .DS_Store
 /node_modules
+/public/models
+/public/audio
 /models
 /backups
+/audio
