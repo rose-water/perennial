@@ -3,7 +3,7 @@ html {
   height        : 100%;
   background    : rgb(16,16,18);
   background    : radial-gradient(circle, rgba(16,16,18,1) 0%, rgba(2,0,36,1) 43%, rgba(14,18,19,1) 100%);
-  /* cursor        : none; */
+  cursor        : none;
 }
 
 body {
@@ -14,8 +14,8 @@ body {
 }
 
 #cursor {
-  width         : 40px;
-  height        : 40px;
+  width         : 20px;
+  height        : 20px;
   position      : fixed;
   margin-left   : -50px;
   margin-top    : -50px;
