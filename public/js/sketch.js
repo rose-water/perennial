@@ -29,6 +29,10 @@ Leap.loop({
 
     // honestly i'm not sure if I should be doing the raycasting
     // from within the leap looping...
+    // console.log('================');
+    // console.log('firstCurrentTunnel: ' + firstCurrentTunnel);
+    // console.log('secondCurrentTunnel: ' + secondCurrentTunnel);
+
     raycaster.setFromCamera( leapPosVector, camera );
     intersects = raycaster.intersectObjects( pickableObjs );
 
@@ -103,6 +107,7 @@ var camera, scene, renderer;
 var particlesObj;
 var audio, sound_1, sound_2, bgm;
 var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
+
 var projector, mouseVector, raycaster;
 var intersects;
 var currentObjIntersected = null;
@@ -134,9 +139,11 @@ function init() {
   container = document.createElement('div');
   document.body.appendChild(container);
 
-  projector   = new THREE.Projector();
-  mouseVector = new THREE.Vector3();
-  raycaster = new THREE.Raycaster();
+  // init raycasting related things
+  projector     = new THREE.Projector();
+  mouseVector   = new THREE.Vector3();
+  raycaster     = new THREE.Raycaster();
+  raycaster.far = 800;
 
   setupCamera();
   setupAudio();
@@ -154,7 +161,7 @@ function init() {
 
 // -----------------------------------------------------
 function setupCamera() {
-  camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 100, 800);
+  camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 100, 800);
   camera.position.z = -800;
 }
 
@@ -256,13 +263,9 @@ function setupLights() {
 	hemiLight.groundColor.setHSL( 0.1, 1, 0.75 );
 	hemiLight.position.set( 0, 50, 0 );
 
-  // dirLight                      = new THREE.DirectionalLight(0xffffff);
-  // dirLight.castShadow           = false;
-  // dirLight.shadow.camera.top    = 180;
-  // dirLight.shadow.camera.bottom = -100;
-  // dirLight.shadow.camera.left   = -120;
-  // dirLight.shadow.camera.right  = 120;
-  // dirLight.position.set(0, 200, 100);
+  dirLight                      = new THREE.DirectionalLight(0xffffff, 0.5);
+  dirLight.castShadow           = false;
+  dirLight.position.set(0, 200, 100);
 
   // Light helpers
   // hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 5);
@@ -273,17 +276,19 @@ function setupLights() {
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({
     // antialias for web only!
-    // antialias: true,
+    antialias: true,
     alpha: true
   });
 
-  renderer.setPixelRatio(window.devicePixelRatio * 0.75);
+  renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = false;
   renderer.sortObjects       = false;
   renderer.autoClear         = false;
   renderer.setClearColor(0x000000, 0.0);
 
+  renderer.domElement.id = 'canvas';
+  renderer.domElement.style.position = 'absolute';
   container.appendChild(renderer.domElement);
 }
 
@@ -294,7 +299,7 @@ function setupScene() {
 
   // add lights
   scene.add(hemiLight);
-  // scene.add(dirLight);
+  scene.add(dirLight);
 
   // DEBUG only: light helpers
   // scene.add(hemiLightHelper);
@@ -335,8 +340,7 @@ function setupScene() {
     scene.add(fbxModel_2);
     scene.add(fbxModel_3);
 
-    // set pickableObjs to be only gems and rocks
-    // do this here so it's only set up once
+    // setup pickableObjs to be only gems and rocks
     let unfilteredPickables = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
     pickableObjs = setupPickableObjsForGroup(unfilteredPickables);
 

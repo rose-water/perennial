@@ -3,7 +3,7 @@ html {
   height        : 100%;
   background    : rgb(16,16,18);
   background    : radial-gradient(circle, rgba(16,16,18,1) 0%, rgba(2,0,36,1) 43%, rgba(14,18,19,1) 100%);
-  cursor        : none;
+  /* cursor        : none; */
 }
 
 body {
