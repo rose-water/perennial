@@ -261,7 +261,7 @@ function setupLights() {
 	hemiLight.groundColor.setHSL( 0.1, 1, 0.75 );
 	hemiLight.position.set( 0, 50, 0 );
 
-  dirLight                      = new THREE.DirectionalLight(0xffffff, 0.5);
+  dirLight                      = new THREE.DirectionalLight(0xfbacde, 0.8);
   dirLight.castShadow           = false;
   dirLight.position.set(0, 200, 100);
 
@@ -343,14 +343,11 @@ function setupScene() {
     // setup pickableObjs to be only gems and rocks
     let unfilteredPickables = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
 
-    // landscapes   = setupLandscapesForGroup(unfilteredPickables);
+    landscapes   = setupLandscapesForGroup(unfilteredPickables);
     pickableObjs = setupPickableObjsForGroup(unfilteredPickables);
 
-    // let materialCopy = landscapes[1].material.clone();
-    // materialCopy.material.color.set(0xc321ce);
-    // materialCopy.material.emissive.set(0x1a7f56);
-    // materialCopy.material.emissiveIntensity.set(1.2);
-    // landscapes[1].material = materialCopy;
+    landscapes[1].material.emissive.set(0x103c17);
+    landscapes[1].material.emissiveIntensity.set(0.1);
 
     // DEBUG only: mouse events for raycasting
     // window.addEventListener( 'mousemove', onMouseMove, false );
@@ -491,6 +488,8 @@ function animate() {
     particlesObj.rotation.y += 0.001;
     particlesObj.rotation.x += 0.0005;
   }
+
+  // stats.update();
 }
 
 // -----------------------------------------------------
