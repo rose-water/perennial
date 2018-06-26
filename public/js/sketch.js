@@ -102,7 +102,7 @@ Leap.loop({
 // =======================================================
 // THREE.js
 // =======================================================
-var container, stats, controls;
+var stats, controls;
 var camera, scene, renderer;
 var particlesObj;
 var audio, sound_1, sound_2, bgm;
@@ -120,6 +120,7 @@ var fbxModel_1            = null;
 var fbxModel_2            = null;
 var fbxModel_3            = null;
 var pickableObjs          = null;
+var landscapes            = null;
 
 checkWebGL();
 init();
@@ -136,9 +137,6 @@ function checkWebGL() {
 
 // -----------------------------------------------------
 function init() {
-  container = document.createElement('div');
-  document.body.appendChild(container);
-
   // init raycasting related things
   projector     = new THREE.Projector();
   mouseVector   = new THREE.Vector3();
@@ -289,7 +287,9 @@ function setupRenderer() {
 
   renderer.domElement.id = 'canvas';
   renderer.domElement.style.position = 'absolute';
-  container.appendChild(renderer.domElement);
+
+  document.body.appendChild(renderer.domElement);
+  Maptastic(renderer.domElement);
 }
 
 // -----------------------------------------------------
@@ -342,7 +342,15 @@ function setupScene() {
 
     // setup pickableObjs to be only gems and rocks
     let unfilteredPickables = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
+
+    // landscapes   = setupLandscapesForGroup(unfilteredPickables);
     pickableObjs = setupPickableObjsForGroup(unfilteredPickables);
+
+    // let materialCopy = landscapes[1].material.clone();
+    // materialCopy.material.color.set(0xc321ce);
+    // materialCopy.material.emissive.set(0x1a7f56);
+    // materialCopy.material.emissiveIntensity.set(1.2);
+    // landscapes[1].material = materialCopy;
 
     // DEBUG only: mouse events for raycasting
     // window.addEventListener( 'mousemove', onMouseMove, false );
@@ -353,6 +361,16 @@ function setupScene() {
 function setupPickableObjsForGroup(groupedChildren) {
   return groupedChildren.filter(function(mesh) {
     if (mesh.name.includes('Gem') || mesh.name.includes('Rock')) {
+      return mesh;
+    }
+    return;
+  });
+}
+
+// -----------------------------------------------------
+function setupLandscapesForGroup(groupedChildren) {
+  return groupedChildren.filter(function(mesh) {
+    if (mesh.name.includes('Landscape')) {
       return mesh;
     }
     return;
@@ -436,7 +454,7 @@ function setupStars() {
 // -----------------------------------------------------
 function setupStats() {
   stats = new Stats();
-  container.appendChild(stats.dom);
+  document.body.appendChild(stats.dom);
 }
 
 // -----------------------------------------------------
@@ -473,8 +491,6 @@ function animate() {
     particlesObj.rotation.y += 0.001;
     particlesObj.rotation.x += 0.0005;
   }
-
-  // stats.update();
 }
 
 // -----------------------------------------------------
