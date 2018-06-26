@@ -323,6 +323,10 @@ function setupScene() {
           } else if (child.name.includes('Tunnel_')) {
             child.material.emissive.set(0xa68aa);
             child.material.emissiveIntensity = 0.15;
+          } else if (child.name.includes('O_Cone_')) {
+            // console.log(child.name);
+            // child.material.emissive.set(0xaf722d);
+            // child.material.emissiveIntensity = 0.1;
           }
         }
       });
