@@ -320,6 +320,9 @@ function setupScene() {
           child.material.side = THREE.DoubleSide;
           if (child.name == 'Tunnel') {
             tunnelObj = child;
+          } else if (child.name.includes('Tunnel_')) {
+            child.material.emissive.set(0xa68aa);
+            child.material.emissiveIntensity = 0.15;
           }
         }
       });
