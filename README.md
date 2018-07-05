@@ -7,5 +7,7 @@ This project was exhibited as an interactive installation at the Gray Area Showc
 
 Built with Cinema 4D, Three.js, and Leap Motion.
 
+# ![screenshot](https://raw.githubusercontent.com/rose-water/perennial/master/meta/ss_1.png)
+
 ## Misc
-Follow me on [Instagram](http://www.instagram.com/tenderbloom).
+Follow me on instagram [@tenderbloom](http://www.instagram.com/tenderbloom).
