@@ -1,7 +1,7 @@
 var osc     = require('node-osc');
 var express = require('express');
 var app     = express();
-var PORT    = 3000;
+var PORT    = process.env.PORT || 3000;
 
 // node server on port 3000
 var server  = app.listen(PORT);
