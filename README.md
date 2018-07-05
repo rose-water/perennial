@@ -3,7 +3,7 @@ Perennial is a meditation born from daydreams, pieced together from fragments of
 
 Perennial is a little world, a gentle vessel, a patient portal.
 
-This project was exhibited as an interactive installation at the Gray Area Showcase on June 27-28, 2018.
+This project was exhibited as an interactive installation at the [Gray Area Showcase](https://www.eventbrite.com/e/gray-area-showcase-20181-tickets-46454650109#) on June 27-28, 2018.
 
 Built with Cinema 4D, Three.js, and Leap Motion.
 
