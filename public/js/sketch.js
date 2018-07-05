@@ -3,101 +3,94 @@
 // =======================================================
 var cursor = document.getElementById('cursor');
 
-Leap.loop({
-  hand: function(hand) {
-    var screenPosition = hand.screenPosition(hand.palmPosition);
-
-    // console.log('==========================');
-    // console.log('x: ' + (screenPosition[0].toPrecision(4)) + 'px');
-    // console.log('y: ' + (screenPosition[1].toPrecision(4)) + 'px');
-    // console.log('z: ' + (screenPosition[2].toPrecision(4)) + 'px');
-
-    // Update and display cursor
-    cursor.style.visibility = 'hidden';
-    var el = document.elementFromPoint(
-      hand.screenPosition()[0],
-      hand.screenPosition()[1]
-    );
-    cursor.style.visibility = 'visible';
-
-    cursor.style.left = screenPosition[0] + 'px';
-    cursor.style.top = screenPosition[1] + 'px';
-
-    let leapPosVector = new THREE.Vector3();
-    leapPosVector.x = 2 * ( screenPosition[0] / window.innerWidth) - 1;
-    leapPosVector.y = 1 - 2 * ( screenPosition[1] / window.innerHeight );
-
-    // honestly i'm not sure if I should be doing the raycasting
-    // from within the leap looping...
-    // console.log('================');
-    // console.log('firstCurrentTunnel: ' + firstCurrentTunnel);
-    // console.log('secondCurrentTunnel: ' + secondCurrentTunnel);
-
-    raycaster.setFromCamera( leapPosVector, camera );
-    intersects = raycaster.intersectObjects( pickableObjs );
-
-    // if we are intersecting something
-    if (intersects.length > 0) {
-
-      let intersectingObj = intersects[0].object;
-
-      // TODO: update since we no longer need to check the name
-      if (intersectingObj.name.includes('Rock') || intersectingObj.name.includes('Gem')) {
-        if (currentObjIntersected !== intersectingObj || currentObjIntersected == null) {
-
-          if (currentObjIntersected !== null) {
-            currentObjIntersected.material = currentObjMaterial;
-            currentObjMaterial = null;
-            currentObjIntersected = null;
-          }
-
-          // store a copy of the material to reset to later
-          currentObjMaterial = intersectingObj.material.clone();
-
-          // create another copy of the material so we can modify the emissive
-          let materialCopy = intersectingObj.material.clone();
-
-          if (intersectingObj.name.includes('Rock')) {
-            materialCopy.emissive.set( 0x52236b );
-          } else {
-            materialCopy.emissive.set( 0x3d8fb1 );
-          }
-
-          materialCopy.emissiveIntensity = 1.2;
-          intersectingObj.material = materialCopy;
-          currentObjIntersected = intersectingObj;
-
-          // this is the wrong way to do this!
-          if (intersectingObj.name.includes('Gem')) {
-            if (sound_1.isPlaying) {
-              sound_1.stop();
-            }
-            sound_1.play();
-
-          } else if (intersectingObj.name.includes('Rock')) {
-            if (sound_2.isPlaying) {
-              sound_2.stop();
-            }
-            sound_2.play();
-          }
-
-        }
-
-      } else {
-        // if we're intersecting a non-rock/gem but we were intersecting a gem/rock before
-        if (currentObjIntersected !== null) {
-          currentObjIntersected.material = currentObjMaterial;
-          currentObjMaterial = null;
-          currentObjIntersected = null;
-          if (sound_1.isPlaying) {
-            sound_1.stop();
-          }
-        }
-      }
-    }
-  }
-
-}).use('screenPosition', { scale: 1 });
+// Leap.loop({
+//   hand: function(hand) {
+//     var screenPosition = hand.screenPosition(hand.palmPosition);
+//
+//     // console.log('==========================');
+//     // console.log('x: ' + (screenPosition[0].toPrecision(4)) + 'px');
+//     // console.log('y: ' + (screenPosition[1].toPrecision(4)) + 'px');
+//     // console.log('z: ' + (screenPosition[2].toPrecision(4)) + 'px');
+//
+//     // Update and display cursor
+//     cursor.style.visibility = 'hidden';
+//     var el = document.elementFromPoint(
+//       hand.screenPosition()[0],
+//       hand.screenPosition()[1]
+//     );
+//     cursor.style.visibility = 'visible';
+//
+//     cursor.style.left = screenPosition[0] + 'px';
+//     cursor.style.top = screenPosition[1] + 'px';
+//
+//     let leapPosVector = new THREE.Vector3();
+//     leapPosVector.x = 2 * ( screenPosition[0] / window.innerWidth) - 1;
+//     leapPosVector.y = 1 - 2 * ( screenPosition[1] / window.innerHeight );
+//
+//     raycaster.setFromCamera( leapPosVector, camera );
+//     intersects = raycaster.intersectObjects( pickableObjs );
+//
+//     // if we are intersecting something
+//     if (intersects.length > 0) {
+//
+//       let intersectingObj = intersects[0].object;
+//
+//       // TODO: update since we no longer need to check the name
+//       if (intersectingObj.name.includes('Rock') || intersectingObj.name.includes('Gem')) {
+//         if (currentObjIntersected !== intersectingObj || currentObjIntersected == null) {
+//
+//           if (currentObjIntersected !== null) {
+//             currentObjIntersected.material = currentObjMaterial;
+//             currentObjMaterial = null;
+//             currentObjIntersected = null;
+//           }
+//
+//           // store a copy of the material to reset to later
+//           currentObjMaterial = intersectingObj.material.clone();
+//
+//           // create another copy of the material so we can modify the emissive
+//           let materialCopy = intersectingObj.material.clone();
+//
+//           if (intersectingObj.name.includes('Rock')) {
+//             materialCopy.emissive.set( 0x52236b );
+//           } else {
+//             materialCopy.emissive.set( 0x3d8fb1 );
+//           }
+//
+//           materialCopy.emissiveIntensity = 1.2;
+//           intersectingObj.material = materialCopy;
+//           currentObjIntersected = intersectingObj;
+//
+//           // this is the wrong way to do this!
+//           if (intersectingObj.name.includes('Gem')) {
+//             if (sound_1.isPlaying) {
+//               sound_1.stop();
+//             }
+//             sound_1.play();
+//
+//           } else if (intersectingObj.name.includes('Rock')) {
+//             if (sound_2.isPlaying) {
+//               sound_2.stop();
+//             }
+//             sound_2.play();
+//           }
+//         }
+//
+//       } else {
+//         // if we're intersecting a non-rock/gem but we were intersecting a gem/rock before
+//         if (currentObjIntersected !== null) {
+//           currentObjIntersected.material = currentObjMaterial;
+//           currentObjMaterial = null;
+//           currentObjIntersected = null;
+//           if (sound_1.isPlaying) {
+//             sound_1.stop();
+//           }
+//         }
+//       }
+//     }
+//   }
+//
+// }).use('screenPosition', { scale: 1 });
 
 // =======================================================
 // THREE.js
@@ -106,7 +99,7 @@ var stats, controls;
 var camera, scene, renderer;
 var particlesObj;
 var audio, sound_1, sound_2, bgm;
-var hemiLight, dirLight, hemiLightHelper, dirLightHelper;
+var hemiLight, dirLight;
 
 var projector, mouseVector, raycaster;
 var intersects;
@@ -114,13 +107,11 @@ var currentObjIntersected = null;
 var currentObjMaterial    = null;
 var tunnelObj             = null;
 
-var clock                 = new THREE.Clock();
 var fbxIsLoaded           = false;
 var fbxModel_1            = null;
 var fbxModel_2            = null;
 var fbxModel_3            = null;
 var pickableObjs          = null;
-var landscapes            = null;
 
 checkWebGL();
 init();
@@ -141,6 +132,8 @@ function init() {
   projector     = new THREE.Projector();
   mouseVector   = new THREE.Vector3();
   raycaster     = new THREE.Raycaster();
+
+  // limit how far the raycaster can go
   raycaster.far = 800;
 
   setupCamera();
@@ -189,7 +182,7 @@ function setupAudio() {
       console.log('bgm loaded.');
       bgm.setBuffer(audioBuffer);
       bgm.setLoop(true);
-      bgm.setVolume(0.9);
+      bgm.setVolume(1.2);
       bgm.play();
     },
 
@@ -264,32 +257,24 @@ function setupLights() {
   dirLight                      = new THREE.DirectionalLight(0xfbacde, 0.8);
   dirLight.castShadow           = false;
   dirLight.position.set(0, 200, 100);
-
-  // Light helpers
-  // hemiLightHelper = new THREE.HemisphereLightHelper(hemiLight, 5);
-  // dirLightHelper = new THREE.DirectionalLightHelper(dirLight, 5);
 }
 
 // -----------------------------------------------------
 function setupRenderer() {
   renderer = new THREE.WebGLRenderer({
-    // antialias for web only!
-    antialias: true,
+    // antialias: true,
     alpha: true
   });
 
-  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setPixelRatio(window.devicePixelRatio * 0.8);
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.shadowMap.enabled = false;
   renderer.sortObjects       = false;
   renderer.autoClear         = false;
   renderer.setClearColor(0x000000, 0.0);
-
   renderer.domElement.id = 'canvas';
-  renderer.domElement.style.position = 'absolute';
 
   document.body.appendChild(renderer.domElement);
-  Maptastic(renderer.domElement);
 }
 
 // -----------------------------------------------------
@@ -299,11 +284,7 @@ function setupScene() {
 
   // add lights
   scene.add(hemiLight);
-  scene.add(dirLight);
-
-  // DEBUG only: light helpers
-  // scene.add(hemiLightHelper);
-  // scene.add(dirLightHelper);
+  // scene.add(dirLight);
 
   // add stars
   scene.add(particlesObj);
@@ -318,15 +299,9 @@ function setupScene() {
       group.traverse(function(child) {
         if (child.isMesh) {
           child.material.side = THREE.DoubleSide;
-          if (child.name == 'Tunnel') {
-            tunnelObj = child;
-          } else if (child.name.includes('Tunnel_')) {
+          if (child.name.includes('Tunnel_')) {
             child.material.emissive.set(0xa68aa);
             child.material.emissiveIntensity = 0.15;
-          } else if (child.name.includes('O_Cone_')) {
-            // console.log(child.name);
-            // child.material.emissive.set(0xaf722d);
-            // child.material.emissiveIntensity = 0.1;
           }
         }
       });
@@ -350,14 +325,10 @@ function setupScene() {
     // setup pickableObjs to be only gems and rocks
     let unfilteredPickables = fbxModel_1.children.concat(fbxModel_2.children).concat(fbxModel_3.children);
 
-    landscapes   = setupLandscapesForGroup(unfilteredPickables);
     pickableObjs = setupPickableObjsForGroup(unfilteredPickables);
 
-    landscapes[1].material.emissive.set(0x103c17);
-    landscapes[1].material.emissiveIntensity.set(0.1);
-
     // DEBUG only: mouse events for raycasting
-    // window.addEventListener( 'mousemove', onMouseMove, false );
+    window.addEventListener( 'mousemove', onMouseMove, false );
   });
 }
 
@@ -372,16 +343,6 @@ function setupPickableObjsForGroup(groupedChildren) {
 }
 
 // -----------------------------------------------------
-function setupLandscapesForGroup(groupedChildren) {
-  return groupedChildren.filter(function(mesh) {
-    if (mesh.name.includes('Landscape')) {
-      return mesh;
-    }
-    return;
-  });
-}
-
-// -----------------------------------------------------
 // Star code from https://codepen.io/tr13ze/pen/pbjWwg
 function setupStars() {
   particlesObj = new THREE.Object3D();
@@ -389,7 +350,7 @@ function setupStars() {
   let numStars = 5000;
   let geometry = new THREE.TetrahedronGeometry(1, 0);
   let material = new THREE.MeshPhongMaterial({
-      color: 0xffffff
+    color: 0xffffff
   });
 
   for (let i = 0; i < numStars; i++) {
@@ -404,56 +365,74 @@ function setupStars() {
 // -----------------------------------------------------
 // DEBUG only: mouse events for raycasting
 // -----------------------------------------------------
-// function onMouseMove(e) {
-//   e.preventDefault();
-//   // map mouse coordinates to range (-1, 1) on x & y axes
-//   mouseVector.x = 2 * (e.clientX / window.innerWidth) - 1;
-//   mouseVector.y = 1 - 2 * ( e.clientY / window.innerHeight );
-//
-//   raycaster.setFromCamera( mouseVector, camera );
-//   intersects = raycaster.intersectObjects( pickableObjs );
-//
-//   // if we are intersecting something
-//   if (intersects.length > 0) {
-//     let intersectingObj = intersects[0].object;
-//
-//     // TODO: update since we no longer need to check the name
-//     if (intersectingObj.name.includes('Rock') || intersectingObj.name.includes('Gem')) {
-//       if (currentObjIntersected !== intersectingObj || currentObjIntersected == null) {
-//
-//         if (currentObjIntersected !== null) {
-//           currentObjIntersected.material = currentObjMaterial;
-//           currentObjMaterial = null;
-//           currentObjIntersected = null;
-//         }
-//
-//         // store a copy of the material to reset to later
-//         currentObjMaterial = intersectingObj.material.clone();
-//
-//         // create another copy of the material so we can modify the emissive
-//         let materialCopy = intersectingObj.material.clone();
-//         materialCopy.emissive.set( 0x3d8fb1 );
-//         materialCopy.emissiveIntensity = 1.2;
-//         intersectingObj.material = materialCopy;
-//         currentObjIntersected = intersectingObj;
-//
-//         // this is the wrong way to do this!
-//         sound_1.play();
-//         setTimeout(function() {
-//           sound_1.stop();
-//         }, 200);
-//       }
-//
-//     } else {
-//       // if we're intersecting a non-rock/gem but we were intersecting a gem/rock before
-//       if (currentObjIntersected !== null) {
-//         currentObjIntersected.material = currentObjMaterial;
-//         currentObjMaterial = null;
-//         currentObjIntersected = null;
-//       }
-//     }
-//   }
-// }
+function onMouseMove(e) {
+  e.preventDefault();
+  // map mouse coordinates to range (-1, 1) on x & y axes
+  mouseVector.x = 2 * (e.clientX / window.innerWidth) - 1;
+  mouseVector.y = 1 - 2 * ( e.clientY / window.innerHeight );
+
+  raycaster.setFromCamera( mouseVector, camera );
+  intersects = raycaster.intersectObjects( pickableObjs );
+
+  // if we are intersecting something
+  if (intersects.length > 0) {
+
+    let intersectingObj = intersects[0].object;
+
+    // TODO: update since we no longer need to check the name
+    if (intersectingObj.name.includes('Rock') || intersectingObj.name.includes('Gem')) {
+      if (currentObjIntersected !== intersectingObj || currentObjIntersected == null) {
+
+        if (currentObjIntersected !== null) {
+          currentObjIntersected.material = currentObjMaterial;
+          currentObjMaterial = null;
+          currentObjIntersected = null;
+        }
+
+        // store a copy of the material to reset to later
+        currentObjMaterial = intersectingObj.material.clone();
+
+        // create another copy of the material so we can modify the emissive
+        let materialCopy = intersectingObj.material.clone();
+
+        if (intersectingObj.name.includes('Rock')) {
+          materialCopy.emissive.set( 0x52236b );
+        } else {
+          materialCopy.emissive.set( 0x3d8fb1 );
+        }
+
+        materialCopy.emissiveIntensity = 1.2;
+        intersectingObj.material = materialCopy;
+        currentObjIntersected = intersectingObj;
+
+        // this is the wrong way to do this!
+        if (intersectingObj.name.includes('Gem')) {
+          if (sound_1.isPlaying) {
+            sound_1.stop();
+          }
+          sound_1.play();
+
+        } else if (intersectingObj.name.includes('Rock')) {
+          if (sound_2.isPlaying) {
+            sound_2.stop();
+          }
+          sound_2.play();
+        }
+      }
+
+    } else {
+      // if we're intersecting a non-rock/gem but we were intersecting a gem/rock before
+      if (currentObjIntersected !== null) {
+        currentObjIntersected.material = currentObjMaterial;
+        currentObjMaterial = null;
+        currentObjIntersected = null;
+        if (sound_1.isPlaying) {
+          sound_1.stop();
+        }
+      }
+    }
+  }
+}
 
 // -----------------------------------------------------
 function setupStats() {
