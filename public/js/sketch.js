@@ -119,7 +119,11 @@ var sound2Loaded = false;
 
 
 checkWebGL();
-init();
+let loader = document.getElementById('loader');
+let btn = document.getElementById('enter-btn');
+btn.addEventListener('click', () => {
+  init();
+});
 
 // -----------------------------------------------------
 function checkWebGL() {
@@ -132,6 +136,7 @@ function checkWebGL() {
 
 // -----------------------------------------------------
 function init() {
+  console.log('initializing...')
   // init raycasting related things
   projector     = new THREE.Projector();
   mouseVector   = new THREE.Vector3();
@@ -452,6 +457,7 @@ function animate() {
   requestAnimationFrame(animate);
 
   if (fbxIsLoaded && bgmLoaded && sound1Loaded && sound2Loaded) {
+    loader.style.display = 'none';
     if ( !bgm.isPlaying ) {
       bgm.play();
     }
