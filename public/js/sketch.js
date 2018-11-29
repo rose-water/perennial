@@ -113,9 +113,13 @@ var fbxModel_2            = null;
 var fbxModel_3            = null;
 var pickableObjs          = null;
 
+var bgmLoaded    = false;
+var sound1Loaded = false;
+var sound2Loaded = false;
+
+
 checkWebGL();
 init();
-animate();
 
 // -----------------------------------------------------
 function checkWebGL() {
@@ -137,17 +141,17 @@ function init() {
   raycaster.far = 800;
 
   setupCamera();
-  setupAudio();
   setupLights();
   setupRenderer();
   setupStars();
+  setupAudio();
   setupScene();
   // setupStats();
 
   // DEBUG only: OrbitControls
   // setupControls();
-
   window.addEventListener( 'resize', onWindowResize, false );
+  animate();
 }
 
 // -----------------------------------------------------
@@ -180,20 +184,20 @@ function setupAudio() {
     // onload callback
     function(audioBuffer) {
       console.log('bgm loaded.');
+      bgmLoaded = true;
       bgm.setBuffer(audioBuffer);
       bgm.setLoop(true);
       bgm.setVolume(1.2);
-      bgm.play();
     },
 
     // on progress callback
     function(xhr) {
-      // console.log('bgm progress:' + (xhr.loaded / xhr.total * 100) + '% loaded' );
+      console.log('bgm progress:' + (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
 
     // on error callback
     function(err) {
-      // console.log('bgm error: ', err);
+      console.log('bgm error: ', err);
     }
   );
 
@@ -204,17 +208,18 @@ function setupAudio() {
     // onload callback
     function(audioBuffer) {
       console.log('sound_1 loaded.');
+      sound1Loaded = true;
       sound_1.setBuffer(audioBuffer);
     },
 
     // on progress callback
     function(xhr) {
-      // console.log('sound_1 progress:' + (xhr.loaded / xhr.total * 100) + '% loaded' );
+      console.log('sound_1 progress:' + (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
 
     // on error callback
     function(err) {
-      // console.log('sound_1 error: ', err);
+      console.log('sound_1 error: ', err);
     }
   );
 
@@ -225,17 +230,18 @@ function setupAudio() {
     // onload callback
     function(audioBuffer) {
       console.log('sound_2 loaded.');
+      sound2Loaded = true;
       sound_2.setBuffer(audioBuffer);
     },
 
     // on progress callback
     function(xhr) {
-      // console.log('sound_2 progress:' + (xhr.loaded / xhr.total * 100) + '% loaded' );
+      console.log('sound_2 progress:' + (xhr.loaded / xhr.total * 100) + '% loaded' );
     },
 
     // on error callback
     function(err) {
-      // console.log('sound_2 error: ', err);
+      console.log('sound_2 error: ', err);
     }
   );
 }
@@ -442,37 +448,44 @@ function setupStats() {
 
 // -----------------------------------------------------
 function animate() {
+
   requestAnimationFrame(animate);
-  renderer.clear();
-  renderer.render(scene, camera);
 
-  // is this the right way to do this?
-  if (fbxIsLoaded) {
-    // depending on what tunnel we are currently in,
-    // we move one of them to make it 'infinite'
-    if (fbxModel_1.position.z == -300) {
-      fbxModel_2.position.z = 300;
+  if (fbxIsLoaded && bgmLoaded && sound1Loaded && sound2Loaded) {
+    if ( !bgm.isPlaying ) {
+      bgm.play();
     }
+    renderer.clear();
+    renderer.render(scene, camera);
 
-    if (fbxModel_3.position.z == -300) {
-      fbxModel_1.position.z = 300;
+    // is this the right way to do this?
+    if (fbxIsLoaded) {
+      // depending on what tunnel we are currently in,
+      // we move one of them to make it 'infinite'
+      if (fbxModel_1.position.z == -300) {
+        fbxModel_2.position.z = 300;
+      }
+
+      if (fbxModel_3.position.z == -300) {
+        fbxModel_1.position.z = 300;
+      }
+
+      if (fbxModel_2.position.z == -300) {
+        fbxModel_3.position.z = 300;
+      }
+
+      // update positions & rotations
+      fbxModel_1.position.z -= 1;
+      fbxModel_2.position.z -= 1;
+      fbxModel_3.position.z -= 1;
+
+      fbxModel_1.rotation.z += 0.001;
+      fbxModel_2.rotation.z += 0.001;
+      fbxModel_3.rotation.z += 0.001;
+
+      particlesObj.rotation.y += 0.001;
+      particlesObj.rotation.x += 0.0005;
     }
-
-    if (fbxModel_2.position.z == -300) {
-      fbxModel_3.position.z = 300;
-    }
-
-    // update positions & rotations
-    fbxModel_1.position.z -= 1;
-    fbxModel_2.position.z -= 1;
-    fbxModel_3.position.z -= 1;
-
-    fbxModel_1.rotation.z += 0.001;
-    fbxModel_2.rotation.z += 0.001;
-    fbxModel_3.rotation.z += 0.001;
-
-    particlesObj.rotation.y += 0.001;
-    particlesObj.rotation.x += 0.0005;
   }
 
   // stats.update();
