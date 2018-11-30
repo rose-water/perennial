@@ -119,10 +119,15 @@ var sound2Loaded = false;
 
 
 checkWebGL();
+let preloader = document.getElementById('preloader');
+let text = document.getElementById('preloader-text');
 let loader = document.getElementById('loader');
 let btn = document.getElementById('enter-btn');
 btn.addEventListener('click', () => {
   init();
+  btn.style.display = 'none';
+  preloader.style.display = 'block';
+  text.style.display = 'block';
 });
 
 // -----------------------------------------------------
